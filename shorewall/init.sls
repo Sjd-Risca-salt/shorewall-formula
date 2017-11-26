@@ -10,11 +10,11 @@
 {%- set name = 'shorewall_v{0}'.format(v) %}
 {%- set config_path = map['config_path_v{0}'.format(v)] %}
 {%- set service = map['service_v{0}'.format(v)] %}
-{%- set find_pkg_version = salt['pkg.version'](pkg)|string() %}
-{%- if find_pkg_version is None %}
+{%- set installed_pkg_version = salt['pkg.version'](pkg)|string() %}
+{%- if installed_pkg_version == '' %}
 {%-   set pkg_version = (salt['pkg.latest_version'](pkg)|string())[0:3] %}
 {%- else %}
-{%-   set pkg_version = find_pkg_version[0:3] %}
+{%-   set pkg_version = installed_pkg_version[0:3] %}
 {%- endif %}
 
 {# Install required packages #}
