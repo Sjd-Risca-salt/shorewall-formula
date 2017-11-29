@@ -1,0 +1,16 @@
+Note about migrating to shorewall 5.
+
+Obsolete configuration file:
+ * 'tcrules' and 'tos' => 'mangle'
+ * 'blacklist' => 'blrules'
+ * 'routestopped' => 'stoppedrules'
+ * 'notrack' => 'conntrack'
+Macros only with format-2 (probably not a big issue)
+Since shorewall 4.6 COMMENT, FORMAT and SECTION Lines now require the leading question mark ("?")
+
+Eliminated rules:
+ * LOGRATE and LOGBURST (superseded by LOGLIMIT)
+ * WIDE_TC_MARKS (superseded by TC_BITS)
+ * HIGH_ROUTE_MARKS (superseded by PROVIDER_OFFSET)
+ * BLACKLISTNEWONLY (superseded by BLACKLIST)
+

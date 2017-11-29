@@ -1,9 +1,9 @@
-{% from "shorewall/map.jinja" import map with context %}
+{%- from "shorewall/map.jinja" import map with context %}
 
 {%- set ipv = salt['pillar.get']('shorewall:ipv', [4]) %}
 {%- do ipv.append(4) if not 4 in ipv %}
 
-{# Iterate over all given ip versions in pillar #}
+{#- Iterate over all given ip versions in pillar #}
 {%- for v in ipv %}
 
 {%- set pkg = map['pkg_v{0}'.format(v)] %}
@@ -17,7 +17,7 @@
 {%-   set pkg_version = (salt['pkg.latest_version'](pkg)|string())[0:3] %}
 {%- endif %}
 
-{# Install required packages #}
+{#- Install required packages #}
 shorewall_v{{ v }}:
   pkg:
     - installed
@@ -26,17 +26,25 @@ shorewall_v{{ v }}:
     - name: {{ service }}
     - enable: True
 
-{# Create config files #}
+{#- Create config files #}
 {%-    for config in map.config_files %}
-{# NAT is not possible for IPv6, see http://shorewall.net/IPv6Support.html #}
+{#- NAT is not possible for IPv6, see http://shorewall.net/IPv6Support.html #}
 {%-      if config == 'masq' and v == 6 %}{% continue %}{% endif %}
-{# Interfaces for traffic shaping should be declared only once, see http://shorewall.net/simple_traffic_shaping.html #}
+{#- Interfaces for traffic shaping should be declared only once, see http://shorewall.net/simple_traffic_shaping.html #}
 {%-      if config == 'tcinterfaces' and v == 6 %}{% continue %}{% endif %}
 {%-      if config == 'tcdevices' and v == 6 %}{% continue %}{% endif %}
 {%-      if config == 'tcclasses' and v == 6 %}{% continue %}{% endif %}
 {#- filter configuration file by shorewall version #}
-{%-      if config == 'routestopped' and pkg_version|float() > 4 %}{% continue %}{% endif %}
-{%-      if config == 'stoppedrules' and pkg_version|float() < 5 %}{% continue %}{% endif %}
+{%-      if pkg_version|float() > '4' %}{% continue %} {% endif %}
+{%-          if config == 'routestopped' or config == 'tcrules' or config == 'blacklist' or config == 'notrack' %}
+{%-              continue %}
+{%-          endif %}
+{%-      endif %}
+{%-      if pkg_version|float() < '5' %}
+{%-          if config == 'stoppedrules' or config == 'mangle' or config == 'blrules' or config == 'conntrack' %}
+{%-              continue %}
+{%-          endif %}
+{%-      endif %}
 
 shorewall_v{{ v }}_config_{{ config }}:
   file.managed:
