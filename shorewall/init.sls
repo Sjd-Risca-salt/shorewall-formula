@@ -30,12 +30,12 @@ shorewall_v{{ v }}:
 {%-      if config == 'tcdevices' and v == 6 %}{% continue %}{% endif %}
 {%-      if config == 'tcclasses' and v == 6 %}{% continue %}{% endif %}
 {#- filter configuration file by shorewall version #}
-{%-      if pkg_version|float() > '4' %}{% continue %} {% endif %}
+{%-      if pkg_version|float() > 4 %}{% continue %} {% endif %}
 {%-          if config == 'routestopped' or config == 'tcrules' or config == 'blacklist' or config == 'notrack' %}
 {%-              continue %}
 {%-          endif %}
 {%-      endif %}
-{%-      if pkg_version|float() < '5' %}
+{%-      if pkg_version|float() < 5 %}
 {%-          if config == 'stoppedrules' or config == 'mangle' or config == 'blrules' or config == 'conntrack' %}
 {%-              continue %}
 {%-          endif %}
